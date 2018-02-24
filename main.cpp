@@ -28,13 +28,14 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, char *, int)
 		{// ‰Šú‰»
 			main.Graphics()->RegistShader<Shader::Point3d>();
 			main.Graphics()->RegistVertexBuffer<VertexBuffer::OnePoint>();
-			main.Graphics()->AddModel(&model);
+			main.SetCurrentScene<Scene<ID3D11Model>>();
+			main.Scene()->AddModel<Model::Point3D>();
 		}
 
 		main.Run();
 
 		{// I—¹
-
+			
 		}
 
 		main.End();

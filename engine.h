@@ -1,5 +1,7 @@
 #pragma once
 
+#include <scene.h>
+
 #include <utils\memory.h>
 
 #include <string>
@@ -23,7 +25,7 @@ public:
 			while (this->window_->MessageLoop())
 			{
 				{
-					this->graphics_->Render();
+					this->graphics_->Render(this->scene_);
 				}
 			}
 		}
@@ -41,14 +43,27 @@ public:
 private:
 	_Window * window_ = nullptr;
 	_Graphics * graphics_ = nullptr;
+	Scene<typename _Graphics::model_type> * scene_ = nullptr;
 
 public:
+	template<class _Scene, class ... Args>
+	void SetCurrentScene(Args ... args)
+	{
+		utils::SafeDelete(this->scene_);
+		this->scene_ = new _Scene(args ...);
+	}
+
+public:
+	_Window * const Window(void)
+	{
+		return this->window_;
+	}
 	_Graphics * const Graphics(void)
 	{
 		return this->graphics_;
 	}
-	_Window * const Window(void)
+	Scene<typename _Graphics::model_type> * const Scene(void)
 	{
-		return this->window_;
+		return this->scene_;
 	}
 };

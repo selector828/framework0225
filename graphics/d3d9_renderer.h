@@ -2,7 +2,6 @@
 
 #include <d3dx9.h>
 #include <d3d9.h>
-#include <graphics.h>
 
 #pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"d3d9.lib")

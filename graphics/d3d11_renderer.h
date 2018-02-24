@@ -3,6 +3,7 @@
 #include <graphics\d3d11_shader.h>
 #include <graphics\d3d11_vertex_buffer.h>
 #include <graphics\d3d11_model.h>
+#include <scene.h>
 
 #include <utils\memory.h>
 
@@ -19,6 +20,9 @@
 
 class D3D11Renderer final
 {
+public:
+	using model_type = ID3D11Model;
+
 public:
 	D3D11Renderer(HWND hwnd, unsigned int width = 1280, unsigned int height = 720)
 	{
@@ -101,14 +105,16 @@ public:
 	}
 
 public:
-	void Render(void)
+	void Render(Scene<model_type> * scene)
 	{
 		D3DXCOLOR clear_color(0.f, 0.f, .5f, 1.f);
 		this->context_->ClearRenderTargetView(this->rtv_, clear_color);
 		this->context_->ClearDepthStencilView(this->dsv_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-		for (auto model : this->model_list)
+		for (auto model : scene->ModelList())
+		{
 			this->DrawModel(model);
+		}
 
 		this->swap_chain_->Present(0, 0);
 	}
@@ -269,18 +275,9 @@ public:
 		this->context_->Draw(vertex_buffer->vertice_num_, 0);
 	}
 
-public:
-	void AddModel(ID3D11Model * model)
-	{
-		this->model_list.emplace_back(model);
-	}
-
 private:
 	std::unordered_map<std::string, D3D11Shader*> shader_db_;
 	std::unordered_map<std::string, D3D11VertexBuffer*> vertex_buffer_db_;
-
-private:
-	std::vector<ID3D11Model*> model_list;
 
 private:
 	IDXGISwapChain * swap_chain_ = nullptr;
