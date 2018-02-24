@@ -1,29 +1,35 @@
 #pragma once
 
-#include <window.h>
-#include <graphics.h>
 #include <utils\memory.h>
 
-template<class _Graphics>
+#include <string>
+
+template<class _Window, class _Graphics>
 class Engine final
 {
 public:
-	Engine(std::string title, unsigned int width, unsigned int height)
+	void Begin(std::string title, unsigned int width, unsigned int height)
 	{
 		{// ウィンドウの表示、グラフィックスの初期化
 			utils::SafeNew(this->window_, title, width, height);
-			
-			utils::SafeNew<_Graphics>(this->graphics_, this->window_->Hwnd(), this->window_->Width(), this->window_->Height());
-		}
 
+			utils::SafeNew(this->graphics_, this->window_->Hwnd(), this->window_->Width(), this->window_->Height());
+		}
+	}
+
+	void Run(void)
+	{
 		{// メインループ
 			while (this->window_->MessageLoop())
 			{
-				this->graphics_->Render();
+				{
+					this->graphics_->Render();
+				}
 			}
 		}
 	}
-	~Engine(void)
+
+	void End(void)
 	{
 		{// グラフィックス、ウィンドウのメモリ開放
 			utils::SafeDelete(this->graphics_);
@@ -33,6 +39,16 @@ public:
 	}
 
 private:
-	Window * window_ = nullptr;
-	Graphics * graphics_ = nullptr;
+	_Window * window_ = nullptr;
+	_Graphics * graphics_ = nullptr;
+
+public:
+	_Graphics * const Graphics(void)
+	{
+		return this->graphics_;
+	}
+	_Window * const Window(void)
+	{
+		return this->window_;
+	}
 };

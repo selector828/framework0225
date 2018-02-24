@@ -9,10 +9,10 @@
 #pragma comment(lib,"d3dx9.lib")
 #pragma comment(lib,"d3dCompiler.lib")
 
-class D3D9Renderer final : public Graphics
+class D3D9Renderer final
 {
 public:
-	D3D9Renderer(HWND hwnd, unsigned int width, unsigned int height) : Graphics(hwnd, width, height)
+	D3D9Renderer(HWND hwnd, unsigned int width, unsigned int height)
 	{
 		D3DDISPLAYMODE d3ddm;
 
@@ -50,7 +50,8 @@ public:
 		}
 	}
 
-	void Render(void) override
+public:
+	void Render(void)
 	{
 		// VPと深度バッファのクリアとステンシルバッファの削除
 		this->device_->Clear(0, NULL, D3DCLEAR_TARGET |	D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
@@ -72,4 +73,8 @@ private:
 	IDirect3D9 * d3d_;
 	IDirect3DDevice9 * device_;
 	D3DPRESENT_PARAMETERS d3d_present_param_;
+
+private:
+	unsigned int width_ = 0;
+	unsigned int height_ = 0;
 };
