@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable: 4316)
+
 #include <component.h>
 
 #include <string>

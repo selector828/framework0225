@@ -12,7 +12,7 @@
 
 namespace Model
 {
-	class Point3D : public D3D11Model<VertexBuffer::OnePoint, Shader::Point3d>
+	class Point3D : public D3D11Model<VertexBuffer::OnePoint, Shader::Point3D>
 	{
 	public:
 		Point3D(IScene<ID3D11Model> * parent) : D3D11Model(parent)

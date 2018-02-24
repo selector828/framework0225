@@ -1,5 +1,7 @@
 #pragma once
 
+#define ALIGN16 _declspec(align(16))
+
 namespace utils
 {
 	template<class T>

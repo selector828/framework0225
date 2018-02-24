@@ -161,10 +161,12 @@
     <ClInclude Include="graphics\d3d11_shader.h" />
     <ClInclude Include="graphics\d3d11_vertex_buffer.h" />
     <ClInclude Include="graphics\d3d9_renderer.h" />
+    <ClInclude Include="model\point_2d.h" />
     <ClInclude Include="scene.h" />
-    <ClInclude Include="model\point3d.h" />
+    <ClInclude Include="model\point_3d.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="scene\opening.h" />
+    <ClInclude Include="shader\point_2d.h" />
     <ClInclude Include="shader\point_3d.h" />
     <ClInclude Include="utils\memory.h" />
     <ClInclude Include="vertex_buffer\one_point.h" />

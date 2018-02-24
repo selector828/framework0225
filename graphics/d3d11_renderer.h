@@ -185,9 +185,19 @@ public:
 			if (FAILED(D3DX11CompileFromFileA(shader->resource_.c_str(), nullptr, nullptr, "VS", "vs_5_0",
 				D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION, 0, nullptr, &compiled_shader, &errors, nullptr)))
 			{
-				char*p = (char*)errors->GetBufferPointer();
-				MessageBoxA(0, p, 0, MB_OK);
-				PostQuitMessage(0);
+				if (errors == nullptr)
+				{
+					MessageBoxA(0, "シェーダファイルが見つかりませんでした。", 0, MB_OK);
+					PostQuitMessage(0);
+					return;
+				}
+				else
+				{
+					char*p = (char*)errors->GetBufferPointer();
+					MessageBoxA(0, p, 0, MB_OK);
+					PostQuitMessage(0);
+					return;
+				}
 			}
 			else
 			{

@@ -8,7 +8,7 @@
 #include <graphics\d3d11_renderer.h>
 #include <shader\point_3d.h>
 #include <vertex_buffer\one_point.h>
-#include <model\point3d.h>
+#include <model\point_3d.h>
 #include <scene\opening.h>
 
 //#include <graphics\d3d9_renderer.h>
@@ -28,7 +28,8 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, char *, int)
 
 		{// ‰Šú‰»
 			{// ƒ[ƒh
-				main.Graphics()->RegistShader<Shader::Point3d>();
+				main.Graphics()->RegistShader<Shader::Point3D>();
+				main.Graphics()->RegistShader<Shader::Point2D>();
 				main.Graphics()->RegistVertexBuffer<VertexBuffer::OnePoint>();
 			}
 
