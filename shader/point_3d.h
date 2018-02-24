@@ -9,7 +9,9 @@ namespace Shader
 	public:
 		struct CB
 		{
-			D3DXMATRIX wvp_;
+			D3DXMATRIX w_;
+			D3DXMATRIX v_;
+			D3DXMATRIX p_;
 		};
 	public:
 		Point3d(void) : D3D11Shader("point_3d.hlsl")

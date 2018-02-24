@@ -9,6 +9,8 @@
 #include <shader\point_3d.h>
 #include <vertex_buffer\one_point.h>
 #include <model\point3d.h>
+#include <scene\opening.h>
+
 //#include <graphics\d3d9_renderer.h>
 
 int __stdcall WinMain(HINSTANCE, HINSTANCE, char *, int)
@@ -21,15 +23,18 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, char *, int)
 
 	{// エンジン起動
 		Engine<Window, D3D11Renderer> main;
-		Model::Point3D model;
 
 		main.Begin("ゲームタイトル", 1280U, 720U);
 
 		{// 初期化
-			main.Graphics()->RegistShader<Shader::Point3d>();
-			main.Graphics()->RegistVertexBuffer<VertexBuffer::OnePoint>();
-			main.SetCurrentScene<Scene<ID3D11Model>>();
-			main.Scene()->AddModel<Model::Point3D>();
+			{// ロード
+				main.Graphics()->RegistShader<Shader::Point3d>();
+				main.Graphics()->RegistVertexBuffer<VertexBuffer::OnePoint>();
+			}
+
+			{// 設定
+				main.SetCurrentScene<Scene::Opening>();
+			}
 		}
 
 		main.Run();

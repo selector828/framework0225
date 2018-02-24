@@ -1,7 +1,9 @@
 //グローバル
 cbuffer global
 {
-	matrix g_WVP; //ワールドから射影までの変換行列
+	matrix g_W; //ワールドから射影までの変換行列
+	matrix g_V; //ワールドから射影までの変換行列
+	matrix g_P; //ワールドから射影までの変換行列
 };
 //構造体
 struct PS_INPUT
@@ -14,9 +16,11 @@ struct PS_INPUT
 //バーテックスシェーダー
 PS_INPUT VS( float4 Pos : POSITION ) 
 {
-	PS_INPUT Out;
-	Out.Pos=mul(Pos,g_WVP);
-	return Out;
+    matrix WVP = transpose(mul(g_P, mul(g_V, g_W)));
+
+    PS_INPUT Out;
+    Out.Pos = mul(Pos, WVP);
+    return Out;
 }
 //
 //

@@ -104,27 +104,13 @@ public:
 		}
 	}
 
-public:
-	void Render(Scene<model_type> * scene)
-	{
-		D3DXCOLOR clear_color(0.f, 0.f, .5f, 1.f);
-		this->context_->ClearRenderTargetView(this->rtv_, clear_color);
-		this->context_->ClearDepthStencilView(this->dsv_, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-		for (auto model : scene->ModelList())
-		{
-			this->DrawModel(model);
-		}
-
-		this->swap_chain_->Present(0, 0);
-	}
-
-public:
 	~D3D11Renderer(void)
 	{
 		{// シェーダー開放
 			for (auto shader : this->shader_db_)
 				utils::SafeDelete(shader.second);
+			for (auto vertex_buffer : this->vertex_buffer_db_)
+				utils::SafeDelete(vertex_buffer.second);
 		}
 
 		{// DirectX解放
@@ -135,6 +121,31 @@ public:
 			utils::SafeRelease(this->swap_chain_);
 			utils::SafeRelease(this->device_);
 		}
+	}
+
+public:
+	void Render(IScene<model_type> * scene)
+	{
+		D3DXCOLOR clear_color(0.f, 0.f, .5f, 1.f);
+		this->context_->ClearRenderTargetView(this->rtv_, clear_color);
+		this->context_->ClearDepthStencilView(this->dsv_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+		for (size_t n = 0; n < scene->ModelList().size();)
+		{
+			auto model = scene->ModelList()[n];
+			if (model->destroy_)
+			{
+				delete model;
+				scene->ModelList().erase(scene->ModelList().begin() + n);
+			}
+			else
+			{
+				this->DrawModel(model);
+				++n;
+			}
+		}
+
+		this->swap_chain_->Present(0, 0);
 	}
 
 public:

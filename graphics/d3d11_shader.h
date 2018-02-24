@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-std::string operator""_hlsl(const char * str, size_t size)
+inline std::string operator""_hlsl(const char * str, size_t size)
 {
 	return "resource\\shader\\" + std::string(str, size) + ".hlsl";
 }

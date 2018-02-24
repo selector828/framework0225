@@ -22,9 +22,9 @@ public:
 	void Run(void)
 	{
 		{// メインループ
-			while (this->window_->MessageLoop())
+			while (this->window_->MessageLoop() && this->scene_ && this->scene_->Run())
 			{
-				{
+				{//描画
 					this->graphics_->Render(this->scene_);
 				}
 			}
@@ -33,7 +33,9 @@ public:
 
 	void End(void)
 	{
-		{// グラフィックス、ウィンドウのメモリ開放
+		{// シーン、グラフィックス、ウィンドウのメモリ開放
+			utils::SafeDelete(this->scene_);
+
 			utils::SafeDelete(this->graphics_);
 
 			utils::SafeDelete(this->window_);
@@ -43,7 +45,7 @@ public:
 private:
 	_Window * window_ = nullptr;
 	_Graphics * graphics_ = nullptr;
-	Scene<typename _Graphics::model_type> * scene_ = nullptr;
+	IScene<typename _Graphics::model_type> * scene_ = nullptr;
 
 public:
 	template<class _Scene, class ... Args>
@@ -62,7 +64,7 @@ public:
 	{
 		return this->graphics_;
 	}
-	Scene<typename _Graphics::model_type> * const Scene(void)
+	IScene<typename _Graphics::model_type> * const Scene(void)
 	{
 		return this->scene_;
 	}
