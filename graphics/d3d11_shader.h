@@ -35,4 +35,5 @@ private:
 	ID3D11PixelShader * ps_ = nullptr;
 	ID3D11InputLayout * input_layout_ = nullptr;
 	ID3D11Buffer * constant_buffer_ = nullptr;
+	std::vector<ID3D11ShaderResourceView*> texture_;
 };
