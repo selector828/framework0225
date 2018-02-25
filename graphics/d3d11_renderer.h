@@ -1,8 +1,11 @@
 #pragma once
 
+#pragma warning(disable: 4996)
+
 #include <graphics\d3d11_shader.h>
 #include <graphics\d3d11_vertex_buffer.h>
 #include <graphics\d3d11_model.h>
+#include <graphics\d3d11_texture.h>
 #include <scene.h>
 
 #include <utils\memory.h>
@@ -101,6 +104,49 @@ public:
 			ID3D11RasterizerState* pIr = NULL;
 			this->device_->CreateRasterizerState(&rdc, &pIr);
 			this->context_->RSSetState(pIr);
+		}
+
+		{// テクスチャ読込
+			std::vector<std::string> fileName = GetAllFileNamesInPath("/resource/texture", "png");
+			for (auto & name : fileName)
+			{
+				char fname[255];
+				int w, h;
+				sscanf(name.c_str(), "%s %d %d", fname, &w, &h);
+				D3DX11_IMAGE_INFO dii;
+				D3DX11CreateShaderResourceViewFromFileA(this->device_, ("resource/texture/" + std::string(name) + ".png").c_str(), NULL, NULL, &D3D11Texture::DB()[fname].resource_, NULL);
+				D3DX11GetImageInfoFromFileA(std::string("resource/texture/" + std::string(name) + ".png").c_str(), NULL, &dii, NULL);
+				if (D3D11Texture::DB()[fname].resource_ != nullptr)
+				{
+					D3D11Texture::DB()[fname].file_name_ = fname;
+					D3D11Texture::DB()[fname].split_.x = (float)w;
+					D3D11Texture::DB()[fname].split_.y = (float)h;
+					D3D11Texture::DB()[fname].size_.x = (float)dii.Width / w;
+					D3D11Texture::DB()[fname].size_.y = (float)dii.Height / h;
+				}
+			}
+		}
+
+		{// ブレンドステート作成
+			for (auto & blend_state : this->blend_state_)
+				blend_state = nullptr;
+
+			{// アルファブレンド用ブレンドステート作成
+				D3D11_BLEND_DESC bd;
+				memset(&bd, 0, sizeof(D3D11_BLEND_DESC));
+				bd.IndependentBlendEnable = false;
+				bd.AlphaToCoverageEnable = false;
+				bd.RenderTarget[0].BlendEnable = true;
+				bd.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				bd.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+				bd.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+				bd.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+				bd.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+				bd.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+				this->device_->CreateBlendState(&bd, &this->blend_state_[static_cast<unsigned int>(BLEND_STATE::ALPHA)]);
+			}
 		}
 	}
 
@@ -204,6 +250,7 @@ public:
 				if (FAILED(this->device_->CreateVertexShader(compiled_shader->GetBufferPointer(), compiled_shader->GetBufferSize(),
 					nullptr, &shader->vs_)))
 				{
+					MessageBoxA(0, "VSの生成に失敗しました。", 0, MB_OK);
 					PostQuitMessage(0);
 				}
 			}
@@ -214,6 +261,7 @@ public:
 			if (FAILED(this->device_->CreateInputLayout(shader->element_desc_.data(), shader->element_desc_.size(),
 				compiled_shader->GetBufferPointer(), compiled_shader->GetBufferSize(), &shader->input_layout_)))
 			{
+				MessageBoxA(0, "インプットレイアウトの生成に失敗しました。", 0, MB_OK);
 				PostQuitMessage(0);
 			}
 			utils::SafeRelease(compiled_shader);
@@ -223,14 +271,15 @@ public:
 			if (FAILED(D3DX11CompileFromFileA(shader->resource_.c_str(), nullptr, nullptr, "GS", "gs_5_0",
 				D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION, 0, nullptr, &compiled_shader, &errors, nullptr)))
 			{
-				char*p = (char*)errors->GetBufferPointer();
-				MessageBoxA(0, p, 0, MB_OK);
+				//char*p = (char*)errors->GetBufferPointer();
+				//MessageBoxA(0, p, 0, MB_OK);
 			}
 			else
 			{
 				if (FAILED(this->device_->CreateGeometryShader(compiled_shader->GetBufferPointer(), compiled_shader->GetBufferSize(),
 					nullptr, &shader->gs_)))
 				{
+					MessageBoxA(0, "GSの生成に失敗しました。", 0, MB_OK);
 					PostQuitMessage(0);
 				}
 			}
@@ -249,24 +298,26 @@ public:
 				if (FAILED(this->device_->CreatePixelShader(compiled_shader->GetBufferPointer(), compiled_shader->GetBufferSize(),
 					nullptr, &shader->ps_)))
 				{
+					MessageBoxA(0, "PSの生成に失敗しました。", 0, MB_OK);
 					PostQuitMessage(0);
 				}
 			}
 			utils::SafeRelease(errors);
 		}
 
-		//コンスタントバッファー作成　ここでは変換行列渡し用
-		D3D11_BUFFER_DESC cb;
-		cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		cb.ByteWidth = sizeof(_Shader::CB);
-		cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		cb.MiscFlags = 0;
-		cb.StructureByteStride = 0;
-		cb.Usage = D3D11_USAGE_DYNAMIC;
+		{//コンスタントバッファー作成
+			D3D11_BUFFER_DESC cb;
+			cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			cb.ByteWidth = sizeof(_Shader::CB);
+			cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			cb.MiscFlags = 0;
+			cb.StructureByteStride = 0;
+			cb.Usage = D3D11_USAGE_DYNAMIC;
 
-		this->device_->CreateBuffer(&cb, nullptr, &shader->constant_buffer_);
+			this->device_->CreateBuffer(&cb, nullptr, &shader->constant_buffer_);
 
-		this->shader_db_[typeid(_Shader).name()] = shader;
+			this->shader_db_[typeid(_Shader).name()] = shader;
+		}
 	}
 
 public:
@@ -283,10 +334,20 @@ public:
 
 		//使用するシェーダーのセット
 		this->context_->VSSetShader(shader->vs_, nullptr, 0);
+		this->context_->GSSetShader(shader->gs_, nullptr, 0);
 		this->context_->PSSetShader(shader->ps_, nullptr, 0);
 		//このコンスタントバッファーをどのシェーダーで使うか
 		this->context_->VSSetConstantBuffers(0, 1, &shader->constant_buffer_);
+		this->context_->GSSetConstantBuffers(0, 1, &shader->constant_buffer_);
 		this->context_->PSSetConstantBuffers(0, 1, &shader->constant_buffer_);
+		//サンプラー
+		//this->context_->PSSetSamplers(0, 1, &shader->sampler_);
+		//ステート
+		this->context_->OMSetBlendState(this->blend_state_[static_cast<unsigned int>(model->blend_state_)], nullptr, 0xffffffff);
+		//テクスチャ
+		for (int n = 0; n < 10; n++)
+			if(model->texture_list_[n])
+				this->context_->PSSetShaderResources(n, 1, &model->texture_list_[n]->resource_);
 		//頂点インプットレイアウトをセット
 		this->context_->IASetInputLayout(shader->input_layout_);
 		//プリミティブ・トポロジーをセット
@@ -307,4 +368,5 @@ private:
 	ID3D11DepthStencilView * dsv_;
 	ID3D11Texture2D * dsv_tex_ = nullptr;
 	ID3D11RenderTargetView * rtv_;
+	ID3D11BlendState * blend_state_[static_cast<unsigned int>(BLEND_STATE::NUM)];
 };

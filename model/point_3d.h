@@ -18,11 +18,10 @@ namespace Model
 		Point3D(IScene<ID3D11Model> * parent) : D3D11Model(parent)
 		{
 			this->Add<Component::Transform>();
-			this->Add<Component::Movement>();
 		}
 
 	public:
-		void Adjust(void) override
+		virtual void Adjust(void) override
 		{
 			this->constant_buffer_.w_ = this->Get<Component::Transform>()->GetMatrix();
 			this->constant_buffer_.v_ = this->Parent()->Get<Component::Camera>()->View();

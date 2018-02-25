@@ -18,11 +18,10 @@ namespace Model
 		Point2D(IScene<ID3D11Model> * parent) : D3D11Model(parent)
 		{
 			this->Add<Component::Transform>();
-			this->Add<Component::Movement>();
 		}
 
 	public:
-		void Adjust(void) override
+		virtual void Adjust(void) override
 		{
 			this->constant_buffer_.w_ = this->Get<Component::Transform>()->GetMatrix();
 			this->constant_buffer_.view_port_.x = 1280.f;

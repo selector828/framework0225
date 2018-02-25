@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable: 4324)
+
 #include <utils\memory.h>
 
 #include <d3dx11.h>
@@ -23,6 +25,7 @@ public:
 		utils::SafeRelease(this->gs_);
 		utils::SafeRelease(this->ps_);
 		utils::SafeRelease(this->input_layout_);
+		utils::SafeRelease(this->sampler_);
 	}
 	
 protected:
@@ -35,5 +38,5 @@ private:
 	ID3D11PixelShader * ps_ = nullptr;
 	ID3D11InputLayout * input_layout_ = nullptr;
 	ID3D11Buffer * constant_buffer_ = nullptr;
-	std::vector<ID3D11ShaderResourceView*> texture_;
+	ID3D11SamplerState * sampler_ = nullptr;
 };

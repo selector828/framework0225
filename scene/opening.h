@@ -3,6 +3,8 @@
 #include <scene.h>
 #include <graphics\d3d11_model.h>
 #include <model\point_2d.h>
+#include <model\point_3d.h>
+#include <model\point_squad_tex_3d.h>
 #include <component\camera.h>
 
 namespace Scene
@@ -13,7 +15,7 @@ namespace Scene
 		Opening(void)
 		{
 			this->Add<Component::Camera>();
-			this->Create<Model::Point2D>();
+			this->Create<Model::Point::Squad::Tex3D>();
 		}
 	};
 }

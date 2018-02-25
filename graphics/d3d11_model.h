@@ -10,6 +10,17 @@
 #include <typeinfo>
 #include <unordered_map>
 
+#include <graphics\d3d11_texture.h>
+
+enum class BLEND_STATE
+{
+	NONE = 0,
+	ALPHA,
+	ADD,
+	SUB,
+	NUM
+};
+
 template<class T> class IScene;
 
 class ID3D11Model
@@ -18,7 +29,11 @@ class ID3D11Model
 	friend IScene<ID3D11Model>;
 
 public:
-	ID3D11Model(IScene<ID3D11Model> * parent, std::string vertex_buffer, std::string shader) : parent_(parent), vertex_buffer_(vertex_buffer), shader_(shader) {}
+	ID3D11Model(IScene<ID3D11Model> * parent, std::string vertex_buffer, std::string shader) : parent_(parent), vertex_buffer_(vertex_buffer), shader_(shader)
+	{
+		for (auto & texture : this->texture_list_)
+			texture = nullptr;
+	}
 	virtual ~ID3D11Model(void)
 	{
 		for (auto itr = this->component_list_.begin(); itr != this->component_list_.end();)
@@ -35,6 +50,32 @@ private:
 private:
 	std::string vertex_buffer_;
 	std::string shader_;
+
+private:
+	D3D11Texture * texture_list_[10];
+
+public:
+	void SetTexture(unsigned int num, std::string file_name)
+	{
+		this->texture_list_[num] = &D3D11Texture::DB()[file_name];
+	}
+	D3D11Texture * const Texture(unsigned int num)
+	{
+		return this->texture_list_[num];
+	}
+
+private:
+	BLEND_STATE blend_state_ = BLEND_STATE::NONE;
+
+public:
+	void SetBlendState(BLEND_STATE blend_state)
+	{
+		this->blend_state_ = blend_state;
+	}
+	BLEND_STATE BlendState(void)
+	{
+		return this->blend_state_;
+	}
 
 private:
 	IScene<ID3D11Model> * parent_;
@@ -136,6 +177,7 @@ public:
 
 public:
 	D3D11Model(IScene<ID3D11Model> * parent) : ID3D11Model(parent, typeid(_VertexBuffer).name(), typeid(_Shader).name()) {}
+
 	void UpdateConstantBuffer(D3D11_MAPPED_SUBRESOURCE & data) override
 	{
 		memcpy_s(data.pData, data.RowPitch, (void*)(&this->constant_buffer_), sizeof(this->constant_buffer_));

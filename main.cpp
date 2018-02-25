@@ -5,10 +5,18 @@
 #include <crtdbg.h>
 
 #include <window.h>
+//graphics
 #include <graphics\d3d11_renderer.h>
-#include <shader\point_3d.h>
+
+//shader
+//#include <shader\point_2d.h>
+//#include <shader\point_3d.h>
+//#include <shader\point_squad_tex_3d.h>
+
+//vertex_buffer
 #include <vertex_buffer\one_point.h>
-#include <model\point_3d.h>
+
+//scene
 #include <scene\opening.h>
 
 //#include <graphics\d3d9_renderer.h>
@@ -29,6 +37,7 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, char *, int)
 		{// ‰Šú‰»
 			{// ƒ[ƒh
 				main.Graphics()->RegistShader<Shader::Point3D>();
+				main.Graphics()->RegistShader<Shader::Point::Squad::Tex3D>();
 				main.Graphics()->RegistShader<Shader::Point2D>();
 				main.Graphics()->RegistVertexBuffer<VertexBuffer::OnePoint>();
 			}
